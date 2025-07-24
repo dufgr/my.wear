@@ -26,12 +26,12 @@ export const removeProductFromCart = async (
       cart: true,
     },
   });
-  const cartDoesNotBelongToUser = cartItem?.cart.userId !== session.user.id;
-  if (cartDoesNotBelongToUser) {
-    throw new Error("Unauthorized");
-  }
   if (!cartItem) {
     throw new Error("Cart item not found");
+  }
+  const cartDoesNotBelongToUser = cartItem.cart.userId !== session.user.id;
+  if (cartDoesNotBelongToUser) {
+    throw new Error("Unauthorized");
   }
   await db.delete(cartItemTable).where(eq(cartItemTable.id, cartItem.id));
 };
