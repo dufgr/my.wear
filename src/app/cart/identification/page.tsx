@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import { db } from "@/db";
-import { cartTable, shippingAddressTable } from "@/db/schema";
+import { shippingAddressTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 import CartSummary from "../components/cart-summary";
@@ -44,7 +44,7 @@ const IdentificationPage = async () => {
     0,
   );
   return (
-    <div className="space-y-12">
+    <div>
       <Header />
       <div className="space-y-4 px-5">
         <Addresses
@@ -64,7 +64,9 @@ const IdentificationPage = async () => {
           }))}
         />
       </div>
-      <Footer />
+      <div className="mt-12">
+        <Footer />
+      </div>
     </div>
   );
 };
