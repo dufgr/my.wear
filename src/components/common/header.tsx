@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
+import { isLocalAuthBypassEnabled } from "@/lib/local-auth-config";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -22,7 +23,7 @@ export const Header = () => {
   return (
     <header className="flex items-center justify-between p-5">
       <Link href="/">
-        <Image src="/logo.svg" alt="BEWEAR" width={100} height={26.14} />
+        <Image src="/mywear.png" alt="my.wear" width={150} height={30} />
       </Link>
 
       <div className="flex items-center gap-3">
@@ -37,34 +38,40 @@ export const Header = () => {
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
             <div className="px-5">
-              {session?.user ? (
+              {session?.user || isLocalAuthBypassEnabled ? (
                 <>
                   <div className="flex justify-between space-y-6">
                     <div className="flex items-center gap-3">
                       <Avatar>
                         <AvatarImage
-                          src={session?.user?.image as string | undefined}
+                          src={session?.user?.image ?? undefined}
                         />
                         <AvatarFallback>
-                          {session?.user?.name?.split(" ")?.[0]?.[0]}
-                          {session?.user?.name?.split(" ")?.[1]?.[0]}
+                          {session?.user?.name
+                            ?.split(" ")
+                            ?.map((name) => name[0])
+                            .join("") ?? "LD"}
                         </AvatarFallback>
                       </Avatar>
 
                       <div>
-                        <h3 className="font-semibold">{session?.user?.name}</h3>
+                        <h3 className="font-semibold">
+                          {session?.user?.name ?? "Local Developer"}
+                        </h3>
                         <span className="text-muted-foreground block text-xs">
-                          {session?.user?.email}
+                          {session?.user?.email ?? "local-bypass@mywear.test"}
                         </span>
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => authClient.signOut()}
-                    >
-                      <LogOutIcon />
-                    </Button>
+                    {session?.user && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => authClient.signOut()}
+                      >
+                        <LogOutIcon />
+                      </Button>
+                    )}
                   </div>
                 </>
               ) : (

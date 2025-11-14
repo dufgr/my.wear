@@ -1,12 +1,16 @@
 {
-  "name": "bewear-bootcamp",
+  "name": "my.wear",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -25,13 +29,13 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.1.0",
-    "drizzle-orm": "^0.44.2",
+    "drizzle-orm": "^0.45.4",
     "lucide-react": "^0.525.0",
-    "next": "15.4.1",
+    "next": "16.4.1",
     "next-themes": "^0.4.6",
     "pg": "^8.16.3",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "react-hook-form": "^7.60.0",
     "react-number-format": "^5.4.4",
     "server-only": "^0.0.1",
@@ -41,7 +45,6 @@
     "zod": "^4.0.5"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.15.4",
@@ -49,7 +52,7 @@
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.4",
     "eslint": "^9",
-    "eslint-config-next": "15.4.1",
+    "eslint-config-next": "16.4.1",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
