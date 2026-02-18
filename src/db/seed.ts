@@ -276,7 +276,7 @@ const categories = [
 ];
 
 const products = [
-  // Acessórios
+  // Accessories
   {
     name: "Mochila",
     description:
@@ -317,7 +317,7 @@ const products = [
     ],
   },
 
-  // Bermuda & Shorts
+  // Shorts
   {
     name: "Shorts Active",
     description:
@@ -362,7 +362,7 @@ const products = [
     ],
   },
 
-  // Calças
+  // Pants
   {
     name: "Calça Nike Club",
     description:
@@ -408,7 +408,7 @@ const products = [
     ],
   },
 
-  // Camisetas
+  // T-shirts
   {
     name: "Camiseta ACG",
     description:
@@ -451,7 +451,7 @@ const products = [
     ],
   },
 
-  // Jaquetas & Moletons
+  // Jackets and hoodies
   {
     name: "Corta Vento",
     description:
@@ -492,7 +492,7 @@ const products = [
     ],
   },
 
-  // Tênis
+  // Shoes
   {
     name: "Tênis Nike Vomero",
     description:
@@ -537,25 +537,25 @@ const products = [
 ];
 
 async function main() {
-  console.log("🌱 Iniciando o seeding do banco de dados...");
+  console.log("Starting database seed...");
 
   try {
-    // Limpar dados existentes
-    console.log("🧹 Limpando dados existentes...");
+    // Clear the catalog before inserting the sample data.
+    console.log("Clearing existing catalog data...");
     await db.delete(productVariantTable);
     await db.delete(productTable);
     await db.delete(categoryTable);
-    console.log("✅ Dados limpos com sucesso!");
+    console.log("Catalog data cleared.");
 
-    // Inserir categorias primeiro
+    // Categories must exist before products can reference them.
     const categoryMap = new Map<string, string>();
 
-    console.log("📂 Criando categorias...");
+    console.log("Creating categories...");
     for (const categoryData of categories) {
       const categoryId = crypto.randomUUID();
       const categorySlug = generateSlug(categoryData.name);
 
-      console.log(`  📁 Criando categoria: ${categoryData.name}`);
+      console.log(`Creating category: ${categoryData.name}`);
 
       await db.insert(categoryTable).values({
         id: categoryId,
@@ -566,7 +566,7 @@ async function main() {
       categoryMap.set(categoryData.name, categoryId);
     }
 
-    // Inserir produtos
+    // Insert products after all categories are available.
     for (const productData of products) {
       const productId = crypto.randomUUID();
       const productSlug = generateSlug(productData.name);
@@ -574,11 +574,11 @@ async function main() {
 
       if (!categoryId) {
         throw new Error(
-          `Categoria "${productData.categoryName}" não encontrada`,
+          `Category "${productData.categoryName}" was not found`,
         );
       }
 
-      console.log(`📦 Criando produto: ${productData.name}`);
+      console.log(`Creating product: ${productData.name}`);
 
       await db.insert(productTable).values({
         id: productId,
@@ -588,7 +588,7 @@ async function main() {
         categoryId: categoryId,
       });
 
-      // Inserir variantes do produto
+      // Insert each color and its associated catalog image.
       for (const variantData of productData.variants) {
         const variantId = crypto.randomUUID();
         const productKey = productData.name as keyof typeof productImages;
@@ -597,7 +597,7 @@ async function main() {
             variantData.color as keyof (typeof productImages)[typeof productKey]
           ] || [];
 
-        console.log(`  🎨 Criando variante: ${variantData.color}`);
+        console.log(`Creating variant: ${variantData.color}`);
 
         await db.insert(productVariantTable).values({
           id: variantId,
@@ -611,17 +611,17 @@ async function main() {
       }
     }
 
-    console.log("✅ Seeding concluído com sucesso!");
+    console.log("Database seed completed.");
     console.log(
-      `📊 Foram criadas ${categories.length} categorias, ${
+      `Created ${categories.length} categories, ${
         products.length
-      } produtos com ${products.reduce(
+      } products with ${products.reduce(
         (acc, p) => acc + p.variants.length,
         0,
-      )} variantes.`,
+      )} variants.`,
     );
   } catch (error) {
-    console.error("❌ Erro durante o seeding:", error);
+    console.error("Database seed failed:", error);
     throw error;
   }
 }
