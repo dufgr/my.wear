@@ -1,20 +1,16 @@
 "use server";
 
-import { headers } from "next/headers";
-
 import { db } from "@/db";
 import { cartTable } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/local-auth";
 
 export const getCart = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user) {
+  const userId = await getCurrentUserId();
+  if (!userId) {
     throw new Error("Unauthorized");
   }
   const cart = await db.query.cartTable.findFirst({
-    where: (cart, { eq }) => eq(cart.userId, session.user.id),
+    where: (cart, { eq }) => eq(cart.userId, userId),
     with: {
       shippingAddress: true,
       items: {
@@ -32,7 +28,7 @@ export const getCart = async () => {
     const [newCart] = await db
       .insert(cartTable)
       .values({
-        userId: session.user.id,
+        userId,
       })
       .returning();
     return {

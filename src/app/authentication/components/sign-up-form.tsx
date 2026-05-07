@@ -45,7 +45,7 @@ const formSchema = z
 
 type FormValues = z.infer<typeof formSchema>;
 
-const SignUpForm = () => {
+const SignUpForm = ({ redirectTo }: { redirectTo: string }) => {
   const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -64,7 +64,7 @@ const SignUpForm = () => {
       password: values.password,
       fetchOptions: {
         onSuccess: () => {
-          router.push("/");
+          router.push(redirectTo);
         },
         onError: (error) => {
           if (error.error.code === "USER_ALREADY_EXISTS") {

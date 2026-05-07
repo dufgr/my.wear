@@ -4,7 +4,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SignInForm from "./components/sign-in-form";
 import SignUpForm from "./components/sign-up-form";
 
-const Authentication = async () => {
+const Authentication = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string | string[] }>;
+}) => {
+  const { callbackUrl } = await searchParams;
+  const redirectTo =
+    typeof callbackUrl === "string" &&
+    callbackUrl.startsWith("/") &&
+    !callbackUrl.startsWith("//") &&
+    !callbackUrl.includes("\\")
+      ? callbackUrl
+      : "/";
+
   return (
     <>
       <Header />
@@ -16,10 +29,16 @@ const Authentication = async () => {
             <TabsTrigger value="sign-up">Criar conta</TabsTrigger>
           </TabsList>
           <TabsContent value="sign-in" className="w-full">
-            <SignInForm />
+            <SignInForm
+              redirectTo={redirectTo}
+              googleAuthEnabled={
+                Boolean(process.env.GOOGLE_CLIENT_ID) &&
+                Boolean(process.env.GOOGLE_CLIENT_SECRET)
+              }
+            />
           </TabsContent>
           <TabsContent value="sign-up" className="w-full">
-            <SignUpForm />
+            <SignUpForm redirectTo={redirectTo} />
           </TabsContent>
         </Tabs>
       </div>

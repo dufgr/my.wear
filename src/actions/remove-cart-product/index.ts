@@ -1,12 +1,11 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
 import z from "zod";
 
 import { db } from "@/db";
 import { cartItemTable } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/local-auth";
 
 import { removeProductFromCartSchema } from "./schema";
 
@@ -14,10 +13,8 @@ export const removeProductFromCart = async (
   data: z.infer<typeof removeProductFromCartSchema>,
 ) => {
   removeProductFromCartSchema.parse(data);
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user) {
+  const userId = await getCurrentUserId();
+  if (!userId) {
     throw new Error("Unauthorized");
   }
   const cartItem = await db.query.cartItemTable.findFirst({
@@ -29,7 +26,7 @@ export const removeProductFromCart = async (
   if (!cartItem) {
     throw new Error("Cart item not found");
   }
-  const cartDoesNotBelongToUser = cartItem.cart.userId !== session.user.id;
+  const cartDoesNotBelongToUser = cartItem.cart.userId !== userId;
   if (cartDoesNotBelongToUser) {
     throw new Error("Unauthorized");
   }

@@ -1,12 +1,11 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
 import Stripe from "stripe";
 
 import { db } from "@/db";
 import { orderItemTable, orderTable } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/local-auth";
 
 import {
   CreateCheckoutSessionSchema,
@@ -19,10 +18,8 @@ export const createCheckoutSession = async (
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("Stripe secret key is not set");
   }
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user) {
+  const userId = await getCurrentUserId();
+  if (!userId) {
     throw new Error("Unauthorized");
   }
   const { orderId } = createCheckoutSessionSchema.parse(data);
@@ -32,7 +29,7 @@ export const createCheckoutSession = async (
   if (!order) {
     throw new Error("Order not found");
   }
-  if (order.userId !== session.user.id) {
+  if (order.userId !== userId) {
     throw new Error("Unauthorized");
   }
   const orderItems = await db.query.orderItemTable.findMany({
@@ -59,7 +56,7 @@ export const createCheckoutSession = async (
             description: orderItem.productVariant.product.description,
             images: [orderItem.productVariant.imageUrl],
           },
-          // Em centavos
+          // Stripe expects the line item amount in cents.
           unit_amount: orderItem.priceInCents,
         },
         quantity: orderItem.quantity,

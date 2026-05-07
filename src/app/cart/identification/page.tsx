@@ -1,25 +1,22 @@
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import { db } from "@/db";
 import { shippingAddressTable } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { getCurrentUserId } from "@/lib/local-auth";
 
 import CartSummary from "../components/cart-summary";
 import Addresses from "./components/addresses";
 
 const IdentificationPage = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session?.user.id) {
+  const userId = await getCurrentUserId();
+  if (!userId) {
     redirect("/");
   }
   const cart = await db.query.cartTable.findFirst({
-    where: (cart, { eq }) => eq(cart.userId, session.user.id),
+    where: (cart, { eq }) => eq(cart.userId, userId),
     with: {
       shippingAddress: true,
       items: {
@@ -37,7 +34,7 @@ const IdentificationPage = async () => {
     redirect("/");
   }
   const shippingAddresses = await db.query.shippingAddressTable.findMany({
-    where: eq(shippingAddressTable.userId, session.user.id),
+    where: eq(shippingAddressTable.userId, userId),
   });
   const cartTotalInCents = cart.items.reduce(
     (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
