@@ -20,11 +20,30 @@ import CartItem from "./cart-item";
 
 export const Cart = () => {
   const { data: cart } = useCart();
+  const distinctItemCount = cart?.items.length ?? 0;
+
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative"
+          aria-label={
+            distinctItemCount > 0
+              ? `Sacola com ${distinctItemCount} ${distinctItemCount === 1 ? "item" : "itens"}`
+              : "Sacola"
+          }
+        >
           <ShoppingBasketIcon />
+          {distinctItemCount > 0 && (
+            <span
+              aria-hidden="true"
+              className="bg-primary text-primary-foreground absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-semibold tabular-nums"
+            >
+              {distinctItemCount > 99 ? "99+" : distinctItemCount}
+            </span>
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent>
