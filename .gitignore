@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Local-only project instructions
 INSTRUCTIONS.md
+
+# Cursor IDE rules
+.cursor/
